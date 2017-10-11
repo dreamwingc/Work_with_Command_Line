@@ -1,0 +1,77 @@
+Operation with MySQL 
+Last modified date: 10/11/2017
+
+1. To start MySQL via docker container:
+	- A docker-compose.yml is needed
+		- An example of docker-compose.yml
+
+		mysql:
+   			image: mysql
+   			ports:
+     			 - 3306:3306
+   			environment:
+     			 MYSQL_ROOT_PASSWORD: "mypassword"
+     			 MYSQL_DATABASE: "db"
+   			volumes:
+     			 - /MySQL_Data:/var/lib/mysql
+	- Current problem
+		- MYSQL_DATABASE cannot be created via docker-compose.yml
+		- Cannot find the created MySQL database in the created local folder (eg: /MySQL_Data)
+
+
+	- Create/Recreate a docker container linked with MySQL
+		- docker-compose up -d
+
+2. Look up all the created docker container:
+	- docker ps -a
+
+3. Look up the in-use docker container:
+	- docker ps
+
+4. Operation with in-use docker container:
+	- Find the ID of the docker container which we would like to enter
+		- docker ps
+	- Enter that docker container with bash command:
+		docker exec -it <ID> bash
+	- Now root@<ID>:/ would be appear
+	- Enter mysql -u root -p
+	- Follow the instruction to enter the set MYSQL_ROOT_PASSWORD
+		- Password incorrect/denied issue
+			- mysql --user=root --password=mypassword
+			- SELECT User,authentication_string FROM mysql.user;
+			- GRANT USAGE ON *.* TO 'root'@'%' IDENTIFIED BY PASSWORD '*authntication_string'
+			- Reference: https://github.com/docker-library/mysql/issues/230
+			- Other ways:
+				- if in container:
+					- /usr/sbin/mysqld --skip-grant-tables --skip-networking &
+				- if use mysql without container:
+					- Reference: https://help.ubuntu.com/community/MysqlPasswordReset 
+	- If mysql> appears, successful
+
+5. Some MySQL operations:
+	- Create database
+		- CREATE DATABASE <database_name>;
+	- List all databases:
+		- SHOW DATABASES;
+	- Select a database to do more operations:
+		- USE <database_name>;
+			- We would see "Database changed" after the above command
+	- Create table with fields in the selected database:
+		- CREATE TABLE <table_name> (field1 type,
+					     field2 type,
+					     ...
+					     fieldn, type);
+	- Add a new field to the existing table:
+		- ALTER TABLE <table_name> ADD field type;
+	- Delete a exist field:
+		- ALTER TABLE <table_name> DROP field;
+	- Change field type:
+		- ALTER TABLE <table_name> MODIFY field new_type;
+	- Display fields/columns in a table:
+		- SHOW COLUMNS FROM <table_name>;
+	- Display information in all columns:
+		- SELECT * FROM <table_name>;
+	- Display information of specific columns:
+		- SELECT field1, field2, ..., fieldn FROM <table_name>;
+
+To be continued...
